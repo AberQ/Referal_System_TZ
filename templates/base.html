@@ -75,6 +75,23 @@
             padding: 5px 10px;
             border-radius: 5px;
         }
+
+        /* Стиль для кнопки Выйти */
+        .logout-btn {
+            position: absolute;
+            top: 10px;
+            right: 120px;
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
     </style>
 </head>
 <body>
@@ -83,11 +100,12 @@
         <div id="userInfo" class="user-info" style="display: none;">
             Вы авторизованы как <span id="userPhoneNumber"></span>
         </div>
+        <button id="logoutButton" class="logout-btn" style="display: none;">Выйти</button>
     </header>
 
     <nav>
         <a href="/">Авторизация</a>
-        <a href="/about/">О нас</a>
+        <a href="/auth/">Ввод кода</a>
     </nav>
 
     <main>
@@ -115,15 +133,33 @@
             return null;
         }
 
+        // Функция для выхода
+        function logout() {
+            localStorage.removeItem('jwt_token'); // Удаляем JWT-токен
+            const userInfoDiv = document.getElementById('userInfo');
+            const logoutButton = document.getElementById('logoutButton');
+            const userPhoneNumber = document.getElementById('userPhoneNumber');
+
+            // Скрываем информацию о пользователе и кнопку "Выйти"
+            userInfoDiv.style.display = 'none';
+            logoutButton.style.display = 'none';
+            location.reload();
+        }
+            
         document.addEventListener('DOMContentLoaded', function () {
             const phoneNumber = getPhoneFromToken();
             const userInfoDiv = document.getElementById('userInfo');
             const userPhoneNumber = document.getElementById('userPhoneNumber');
-            
+            const logoutButton = document.getElementById('logoutButton');
+
             if (phoneNumber) {
                 userPhoneNumber.textContent = phoneNumber;
                 userInfoDiv.style.display = 'block'; // Показываем информацию о пользователе
+                logoutButton.style.display = 'inline-block'; // Показываем кнопку "Выйти"
             }
+
+            // Обработчик для кнопки "Выйти"
+            logoutButton.addEventListener('click', logout);
         });
     </script>
 </body>
