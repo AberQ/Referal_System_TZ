@@ -10,6 +10,7 @@ from .models import CustomUser
 from .serializers import CustomUserSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import NotFound
+from .serializers import *
 class GetOrCreateUser(APIView):
     def post(self, request, *args, **kwargs):
         phone_number = request.data.get('phone_number')
@@ -50,23 +51,19 @@ class AuthenticateUser(APIView):
 
 class ProfileView(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]  # Убедимся, что пользователь аутентифицирован
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """
-        Возвращает все данные пользователя из JWT-токена
+        Возвращает профиль пользователя с его рефералами.
         """
-        if not request.user.is_authenticated:
-            raise AuthenticationFailed('User is not authenticated')
+        # Получаем текущего аутентифицированного пользователя
+        user = request.user
 
-        user_data = {
-            "phone_number": request.user.phone_number,
-            "auth_code": request.user.auth_code,
-            "referral_code": request.user.referral_code,
-            "referred_by": request.user.referred_by.phone_number if request.user.referred_by else None,
-        }
+        # Сериализуем профиль пользователя
+        serializer = UserProfileSerializer(user)
 
-        return Response(user_data)
+        return Response(serializer.data)
 
 
 class ReferralCodeView(APIView):
