@@ -14,6 +14,7 @@ from .serializers import *
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework.exceptions import PermissionDenied
 class PhoneNumberFormView(APIView):
     def get(self, request, *args, **kwargs):
         return render(request, 'phone_number_form.html')
@@ -89,6 +90,10 @@ class ReferralCodeView(APIView):
         # Проверяем, что referral_code передан в запросе
         if not referral_code:
             return Response({"detail": "Referral code is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Проверяем, что пользователь не пытается ввести свой собственный реферальный код
+        if referral_code == request.user.referral_code:
+            raise PermissionDenied({"detail": "You cannot use your own referral code."})
 
         # Ищем пользователя с данным referral_code
         try:
