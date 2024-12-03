@@ -19,6 +19,7 @@
             padding: 10px 20px;
             color: white;
             text-align: center;
+            position: relative;
         }
 
         header h1 {
@@ -62,11 +63,26 @@
             width: 100%;
             bottom: 0;
         }
+
+        /* Стиль для отображения информации о пользователе в правом верхнем углу */
+        .user-info {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #4CAF50;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Добро пожаловать на мой сайт</h1>
+        <div id="userInfo" class="user-info" style="display: none;">
+            Вы авторизованы как <span id="userPhoneNumber"></span>
+        </div>
     </header>
 
     <nav>
@@ -83,5 +99,32 @@
     <footer>
         &copy; {{ year }} Мой сайт. Все права защищены.
     </footer>
+
+    <script>
+        // Функция для получения данных из JWT-токена
+        function getPhoneFromToken() {
+            const token = localStorage.getItem('jwt_token'); // предполагаем, что токен хранится в localStorage
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1])); // Декодируем payload
+                    return payload.phone_number; // Вернем номер телефона из токена
+                } catch (e) {
+                    console.error("Ошибка при декодировании токена:", e);
+                }
+            }
+            return null;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const phoneNumber = getPhoneFromToken();
+            const userInfoDiv = document.getElementById('userInfo');
+            const userPhoneNumber = document.getElementById('userPhoneNumber');
+            
+            if (phoneNumber) {
+                userPhoneNumber.textContent = phoneNumber;
+                userInfoDiv.style.display = 'block'; // Показываем информацию о пользователе
+            }
+        });
+    </script>
 </body>
 </html>
