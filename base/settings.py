@@ -86,9 +86,13 @@ WSGI_APPLICATION = 'base.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "Referral_DB",
+        "USER": "postgres",
+        "PASSWORD": "123",
+        "HOST": "db",  # Если надо взаимодействовать через Docker то надо ставить 'db', а если через тестовый сервер django, то 'localhost'
+        "PORT": "5432",
     }
 }
 
