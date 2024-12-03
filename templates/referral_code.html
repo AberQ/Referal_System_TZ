@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Ввод реферального кода{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Ввод реферального кода</h1>
+    <form id="referralForm">
+        <input type="text" id="referralCodeInput" placeholder="Введите реферальный код" required>
+        <button type="submit" id="submitButton">Применить</button>
+    </form>
+    <p id="responseMessage" style="margin-top: 15px; font-weight: bold;"></p>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const referralForm = document.getElementById('referralForm');
+        const referralCodeInput = document.getElementById('referralCodeInput');
+        const responseMessage = document.getElementById('responseMessage');
+
+        referralForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const referralCode = referralCodeInput.value.trim();
+            if (!referralCode) {
+                responseMessage.textContent = "Пожалуйста, введите реферальный код.";
+                responseMessage.style.color = "red";
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('jwt_token'); // Предполагаем, что токен хранится в localStorage
+                const response = await fetch('/api/input_referral_code/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ referral_code: referralCode })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    responseMessage.textContent = data.detail || "Реферальный код успешно применён!";
+                    responseMessage.style.color = "green";
+                    referralCodeInput.value = ""; // Очищаем поле ввода
+                } else {
+                    responseMessage.textContent = data.detail || "Ошибка при применении реферального кода.";
+                    responseMessage.style.color = "red";
+                }
+            } catch (error) {
+                console.error("Ошибка при запросе:", error);
+                responseMessage.textContent = "Произошла ошибка. Попробуйте позже.";
+                responseMessage.style.color = "red";
+            }
+        });
+    });
+</script>
+<style>
+    .form-container {
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+    }
+
+    .form-container h1 {
+        margin-bottom: 15px;
+    }
+
+    .form-container input {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .form-container button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .form-container button:hover {
+        background-color: #45a049;
+    }
+
+    #responseMessage {
+        font-size: 14px;
+    }
+</style>
+{% endblock %}

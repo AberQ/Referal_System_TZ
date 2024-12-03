@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/profile/', ProfileView.as_view(), name='profile_detail'),
     path('api/input_referral_code/', ReferralCodeView.as_view(), name='input_referral_code'),
     path('', PhoneNumberFormView.as_view(), name='phone_number_form'),
-    path('auth/', auth_page, name='auth_page'),  # Страница авторизации
+    path('auth/', auth_page, name='auth_page'),  
+    path('referral/', referral_code_view, name='referral'),
     
 ]

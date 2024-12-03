@@ -11,7 +11,7 @@ from .serializers import CustomUserSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import NotFound
 from .serializers import *
-
+from django.contrib.auth.decorators import login_required
 
 class PhoneNumberFormView(APIView):
     def get(self, request, *args, **kwargs):
@@ -104,3 +104,14 @@ class ReferralCodeView(APIView):
         request.user.save()
 
         return Response({"detail": "Referral code applied successfully."}, status=status.HTTP_200_OK)
+
+
+
+
+
+@login_required
+def referral_code_view(request):
+    """
+    Отображает страницу ввода реферального кода.
+    """
+    return render(request, 'referral_code.html')
