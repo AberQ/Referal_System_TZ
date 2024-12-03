@@ -87,7 +87,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             raise ValidationError("A user cannot refer themselves.")
     def get_jwt_token(self):
         """
-        Генерация JWT-токена для пользователя.
+        Генерация JWT-токена с добавлением phone_number, auth_code и referral_code.
         """
         refresh = RefreshToken.for_user(self)
+        
+        # Добавление дополнительных данных в payload
+        refresh.payload.update({
+            'phone_number': self.phone_number,
+            'auth_code': self.auth_code,
+            'referral_code': self.referral_code,
+            'referred_by': self.referred_by.phone_number if self.referred_by else None  
+        })
+        
         return str(refresh.access_token)
