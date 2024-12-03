@@ -1,24 +1,35 @@
-# admin.py
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django import forms
 from .models import CustomUser
+from django.contrib.auth.forms import UserChangeForm
 
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
-    search_fields = ['phone_number']  # Добавляем поиск по номеру телефона
-    list_display = ['phone_number', 'is_staff', 'is_active']
-    ordering = ['phone_number']
-    fieldsets = (
-        (None, {'fields': ('phone_number', 'password')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
-    )
+class CustomUserCreationForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ('phone_number', 'is_active', 'is_staff', 'is_superuser')
+    
+    # Переопределяем метод clean_password, чтобы не требовать пароля
+    def clean_password(self):
+        return None  # Пароль не требуется
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = ('phone_number', 'is_active', 'is_staff', 'is_superuser')
+
+class CustomUserAdmin(admin.ModelAdmin):
+    form = CustomUserChangeForm
+    add_form = CustomUserCreationForm
+
+    list_display = ('phone_number', 'is_active', 'is_staff', 'is_superuser')
+    list_filter = ('is_active', 'is_staff', 'is_superuser')
+    search_fields = ('phone_number',)
+
+    # Настроим поля для добавления нового пользователя
     add_fieldsets = (
-        (None, {'fields': ('phone_number', 'password1', 'password2')}),
+        (None, {
+            'fields': ('phone_number', 'is_active', 'is_staff', 'is_superuser'),
+        }),
     )
-
-    # Исключаем группы и разрешения
-    filter_horizontal = []
-    list_filter = ['is_staff', 'is_active']
 
 admin.site.register(CustomUser, CustomUserAdmin)

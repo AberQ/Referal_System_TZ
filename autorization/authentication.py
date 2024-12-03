@@ -1,11 +1,20 @@
-from django.contrib.auth.backends import ModelBackend
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 
-class PhoneAuthBackend(ModelBackend):
-    def authenticate(self, request, phone_number=None, code=None):
-        try:
-            user = CustomUser.objects.get(phone_number=phone_number)
-            if user.check_password(code):  # Вместо пароля используйте код
-                return user
-        except CustomUser.DoesNotExist:
-            return None
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = ('phone_number', 'is_active', 'is_staff', 'is_superuser')
+
+    def clean_password1(self):
+        # Возвращаем пустое значение, чтобы не требовать пароль
+        return None
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if not user.password:
+            user.set_unusable_password()  # Устанавливаем невозможный пароль
+        if commit:
+            user.save()
+        return user
