@@ -50,6 +50,6 @@ urlpatterns = [
     path('', home, name='phone_number_form'),
     path('auth/', auth_page, name='auth_page'),  
     path('referral/', referral_code_view, name='referral'),
-    path('profile/', UserProfilePageView.as_view(), name='profile_page'),
+    path('profile/', profile_page, name='profile_page'),
     
 ]

@@ -157,14 +157,15 @@ class ReferralCodeView(APIView):
 
 
 
-@login_required
+
 def referral_code_view(request):
     """
     Отображает страницу ввода реферального кода.
     """
     return render(request, 'referral_code.html')
 
-
+def profile_page(request):
+    return render(request, 'profile.html')
 
 
 class UserProfilePageView(LoginRequiredMixin, TemplateView):

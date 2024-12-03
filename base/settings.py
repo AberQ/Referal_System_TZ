@@ -91,7 +91,7 @@ DATABASES = {
         "NAME": "Referral_DB",
         "USER": "postgres",
         "PASSWORD": "123",
-        "HOST": "db",  # Если надо взаимодействовать через Docker то надо ставить 'db', а если через тестовый сервер django, то 'localhost'
+        "HOST": "localhost",  # Если надо взаимодействовать через Docker то надо ставить 'db', а если через тестовый сервер django, то 'localhost'
         "PORT": "5432",
     }
 }
@@ -161,3 +161,5 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+
+LOGIN_REDIRECT_URL = '/'

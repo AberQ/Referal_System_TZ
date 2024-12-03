@@ -3,7 +3,7 @@ version: '3'
 services:
   web:
     build: .
-    command: /bin/bash -c "sleep 3 && python manage.py runserver 0.0.0.0:8000"
+    command: /bin/sh -c "while ! nc -z db 5432; do sleep 2; done; ./entrypoint.sh"
     volumes:
       - .:/app
     ports:
