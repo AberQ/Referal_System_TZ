@@ -25,3 +25,23 @@ class GetOrCreateUser(APIView):
             # Если пользователя нет, создаем нового
             user = CustomUser.objects.create_user(phone_number=phone_number)
             return Response({"auth_code": user.auth_code}, status=status.HTTP_201_CREATED)
+
+
+
+
+class AuthenticateUser(APIView):
+    def post(self, request, *args, **kwargs):
+        auth_code = request.data.get('auth_code')
+
+        if not auth_code:
+            return Response({"error": "Auth code is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ищем пользователя по auth_code
+        user = CustomUser.objects.filter(auth_code=auth_code).first()
+
+        if user:
+            # Если код правильный, генерируем JWT токен
+            token = user.get_jwt_token()
+            return Response({"token": token}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid auth code"}, status=status.HTTP_400_BAD_REQUEST)

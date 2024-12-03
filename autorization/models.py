@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 import random
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError
 class CustomUserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, referred_by=None, **extra_fields):
@@ -84,3 +85,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         # Проверка, что у пользователя не может быть более одного пригласившего
         if self.referred_by and self.referred_by == self:
             raise ValidationError("A user cannot refer themselves.")
+    def get_jwt_token(self):
+        """
+        Генерация JWT-токена для пользователя.
+        """
+        refresh = RefreshToken.for_user(self)
+        return str(refresh.access_token)
