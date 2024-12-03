@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from autorization.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('autorize/', GetOrCreateUser.as_view(), name='get_or_create_user'),
 ]
