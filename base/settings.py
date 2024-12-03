@@ -146,3 +146,14 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",  # Указываем, что токен будет передаваться в заголовке Authorization
+            "description": "ВВОДИТЬ ТОКЕН МОЖНО ТОЛЬКО В ФОРМАТЕ: Bearer <твой токен>",
+        }
+    }
+}
