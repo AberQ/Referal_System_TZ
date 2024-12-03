@@ -1,6 +1,6 @@
 from django.shortcuts import render
-
-# Create your views here.
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import login
 from django.shortcuts import render, redirect
 from rest_framework import status
@@ -49,16 +49,20 @@ class AuthenticateUser(APIView):
 
 class ProfileView(APIView):
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]  # Убедимся, что пользователь аутентифицирован
 
     def get(self, request):
         """
         Возвращает все данные пользователя из JWT-токена
         """
+        if not request.user.is_authenticated:
+            raise AuthenticationFailed('User is not authenticated')
+
         user_data = {
             "phone_number": request.user.phone_number,
             "auth_code": request.user.auth_code,
             "referral_code": request.user.referral_code,
             "referred_by": request.user.referred_by.phone_number if request.user.referred_by else None,
         }
-        
+
         return Response(user_data)
