@@ -3,7 +3,7 @@ from django.db import models
 import random
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, **extra_fields):
+    def create_user(self, phone_number, password=None, referred_by=None, **extra_fields):
         """
         Создаем пользователя с номером телефона и паролем
         """
@@ -19,6 +19,10 @@ class CustomUserManager(BaseUserManager):
         # Генерация уникальных кодов
         user.auth_code = self.generate_unique_auth_code()
         user.referral_code = self.generate_unique_referral_code()
+        
+        # Если указан реферальный код, сохраняем его
+        if referred_by:
+            user.referred_by = referred_by
         
         user.save(using=self._db)
         return user
@@ -53,6 +57,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=15, unique=True)
     auth_code = models.CharField(max_length=4, blank=True, null=True, unique=True)  # Уникальный код
     referral_code = models.CharField(max_length=6, blank=True, null=True, unique=True)  # Уникальный реферальный код
+    referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_users')  # Кто пригласил
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

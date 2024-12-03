@@ -6,8 +6,8 @@ from django.contrib.auth.forms import UserChangeForm
 class CustomUserCreationForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ('phone_number', 'is_active', 'is_staff', 'is_superuser')
-    
+        fields = ('phone_number', 'is_active', 'is_staff', 'is_superuser', 'referred_by')
+
     # Переопределяем метод clean_password, чтобы не требовать пароля
     def clean_password(self):
         return None  # Пароль не требуется
@@ -15,13 +15,13 @@ class CustomUserCreationForm(forms.ModelForm):
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
-        fields = ('phone_number', 'is_active', 'is_staff', 'is_superuser')
+        fields = ('phone_number', 'is_active', 'is_staff', 'is_superuser', 'referred_by')
 
 class CustomUserAdmin(admin.ModelAdmin):
     form = CustomUserChangeForm
     add_form = CustomUserCreationForm
 
-    list_display = ('phone_number', 'auth_code', 'referral_code', 'is_active', 'is_staff', 'is_superuser')
+    list_display = ('phone_number', 'auth_code', 'referral_code', 'referred_by', 'is_active', 'is_staff', 'is_superuser')
     list_filter = ('is_active', 'is_staff', 'is_superuser')
     search_fields = ('phone_number',)
     readonly_fields = ('auth_code', 'referral_code')  # Оба кода будут доступны только для чтения в админке
@@ -29,7 +29,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     # Настроим поля для добавления нового пользователя
     add_fieldsets = (
         (None, {
-            'fields': ('phone_number', 'is_active', 'is_staff', 'is_superuser'),
+            'fields': ('phone_number', 'is_active', 'is_staff', 'is_superuser', 'referred_by'),
         }),
     )
 
