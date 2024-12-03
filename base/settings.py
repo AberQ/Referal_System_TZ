@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'autorization',
 ]
 
 MIDDLEWARE = [
@@ -121,7 +122,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+AUTH_USER_MODEL = 'autorization.CustomUser'
 AUTHENTICATION_BACKENDS = [
-    'autorization.authentication.NoPasswordAuthBackend',  # Путь к вашему кастомному бэкэнду
-    'django.contrib.auth.backends.ModelBackend',  # Стандартная аутентификация Django
-]
+    'autorization.authentication.PhoneAuthBackend',
+     'django.contrib.auth.backends.ModelBackend',                       
+    ]

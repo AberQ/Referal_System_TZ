@@ -1,11 +1,11 @@
-from django.contrib.auth.backends import BaseBackend
-from django.contrib.auth.models import User
+from django.contrib.auth.backends import ModelBackend
+from .models import CustomUser
 
-class NoPasswordAuthBackend(BaseBackend):
-    def authenticate(self, request, username=None, password=None, **kwargs):
+class PhoneAuthBackend(ModelBackend):
+    def authenticate(self, request, phone_number=None, code=None):
         try:
-            user = User.objects.get(username=username)
-            # Дополнительная проверка (например, через код или другие данные)
-            return user
-        except User.DoesNotExist:
+            user = CustomUser.objects.get(phone_number=phone_number)
+            if user.check_password(code):  # Вместо пароля используйте код
+                return user
+        except CustomUser.DoesNotExist:
             return None
