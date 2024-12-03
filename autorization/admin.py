@@ -24,7 +24,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('phone_number', 'is_active', 'is_staff', 'is_superuser')
     list_filter = ('is_active', 'is_staff', 'is_superuser')
     search_fields = ('phone_number',)
-
+    readonly_fields = ('auth_code',)
     # Настроим поля для добавления нового пользователя
     add_fieldsets = (
         (None, {
