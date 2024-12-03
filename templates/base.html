@@ -18,13 +18,41 @@
             background-color: #4CAF50;
             padding: 10px 20px;
             color: white;
-            text-align: center;
-            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         header h1 {
             margin: 0;
             font-size: 24px;
+        }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            font-size: 16px;
+            background-color: #4CAF50;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background-color: #d32f2f;
         }
 
         nav {
@@ -63,44 +91,17 @@
             width: 100%;
             bottom: 0;
         }
-
-        /* Стиль для отображения информации о пользователе в правом верхнем углу */
-        .user-info {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 16px;
-            color: #fff;
-            background-color: #4CAF50;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-
-        /* Стиль для кнопки Выйти */
-        .logout-btn {
-            position: absolute;
-            top: 10px;
-            right: 120px;
-            background-color: #f44336;
-            color: white;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .logout-btn:hover {
-            background-color: #d32f2f;
-        }
     </style>
 </head>
 <body>
     <header>
         <h1>Добро пожаловать на мой сайт</h1>
-        <div id="userInfo" class="user-info" style="display: none;">
-            Вы авторизованы как <span id="userPhoneNumber"></span>
+        <div class="user-controls">
+            <div id="userInfo" class="user-info" style="display: none;">
+                Вы авторизованы как <span id="userPhoneNumber"></span>
+            </div>
+            <button id="logoutButton" class="logout-btn" style="display: none;">Выйти</button>
         </div>
-        <button id="logoutButton" class="logout-btn" style="display: none;">Выйти</button>
     </header>
 
     <nav>
@@ -119,13 +120,12 @@
     </footer>
 
     <script>
-        // Функция для получения данных из JWT-токена
         function getPhoneFromToken() {
-            const token = localStorage.getItem('jwt_token'); // предполагаем, что токен хранится в localStorage
+            const token = localStorage.getItem('jwt_token');
             if (token) {
                 try {
-                    const payload = JSON.parse(atob(token.split('.')[1])); // Декодируем payload
-                    return payload.phone_number; // Вернем номер телефона из токена
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    return payload.phone_number;
                 } catch (e) {
                     console.error("Ошибка при декодировании токена:", e);
                 }
@@ -133,19 +133,11 @@
             return null;
         }
 
-        // Функция для выхода
         function logout() {
-            localStorage.removeItem('jwt_token'); // Удаляем JWT-токен
-            const userInfoDiv = document.getElementById('userInfo');
-            const logoutButton = document.getElementById('logoutButton');
-            const userPhoneNumber = document.getElementById('userPhoneNumber');
-
-            // Скрываем информацию о пользователе и кнопку "Выйти"
-            userInfoDiv.style.display = 'none';
-            logoutButton.style.display = 'none';
+            localStorage.removeItem('jwt_token');
             location.reload();
         }
-            
+
         document.addEventListener('DOMContentLoaded', function () {
             const phoneNumber = getPhoneFromToken();
             const userInfoDiv = document.getElementById('userInfo');
@@ -154,11 +146,10 @@
 
             if (phoneNumber) {
                 userPhoneNumber.textContent = phoneNumber;
-                userInfoDiv.style.display = 'block'; // Показываем информацию о пользователе
-                logoutButton.style.display = 'inline-block'; // Показываем кнопку "Выйти"
+                userInfoDiv.style.display = 'block';
+                logoutButton.style.display = 'inline-block';
             }
 
-            // Обработчик для кнопки "Выйти"
             logoutButton.addEventListener('click', logout);
         });
     </script>
