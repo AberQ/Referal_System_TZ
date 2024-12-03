@@ -15,12 +15,30 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.exceptions import PermissionDenied
-class PhoneNumberFormView(APIView):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'phone_number_form.html')
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+
+def home(request):
+    return render(request, 'phone_number_form.html')
 
 
 class GetOrCreateUser(APIView):
+    @swagger_auto_schema(
+        operation_description="Создает пользователя по номеру телефона или возвращает auth_code для существующего пользователя.",
+        operation_summary="Создание пользователя или возврат auth_code для существующего.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            
+            properties={
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='Номер телефона пользователя')
+            }
+        ),
+        responses={
+            200: openapi.Response('User exists', openapi.Schema(type=openapi.TYPE_OBJECT, properties={'auth_code': openapi.Schema(type=openapi.TYPE_STRING)})),
+            201: openapi.Response('User created', openapi.Schema(type=openapi.TYPE_OBJECT, properties={'auth_code': openapi.Schema(type=openapi.TYPE_STRING)})),
+            400: openapi.Response('Bad Request', openapi.Schema(type=openapi.TYPE_OBJECT, properties={'error': openapi.Schema(type=openapi.TYPE_STRING)})),
+        }
+    )
     def post(self, request, *args, **kwargs):
         phone_number = request.data.get('phone_number')
         if not phone_number:
@@ -30,10 +48,8 @@ class GetOrCreateUser(APIView):
         user = CustomUser.objects.filter(phone_number=phone_number).first()
 
         if user:
-            # Если пользователь существует, возвращаем его auth_code
             return Response({"auth_code": user.auth_code}, status=status.HTTP_200_OK)
         else:
-            # Если пользователя нет, создаем нового
             user = CustomUser.objects.create_user(phone_number=phone_number)
             return Response({"auth_code": user.auth_code}, status=status.HTTP_201_CREATED)
 
@@ -41,21 +57,34 @@ class GetOrCreateUser(APIView):
 
 
 class AuthenticateUser(APIView):
+    @swagger_auto_schema(
+        operation_description="Аутентифицирует пользователя по auth_code и генерирует JWT токен.",
+        operation_summary="Аутентификация пользователя по auth_code и генерация JWT токена.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'auth_code': openapi.Schema(type=openapi.TYPE_STRING, description='Код подтверждения для аутентификации')
+            }
+        ),
+        responses={
+            200: openapi.Response('Token generated', openapi.Schema(type=openapi.TYPE_OBJECT, properties={'token': openapi.Schema(type=openapi.TYPE_STRING)})),
+            400: openapi.Response('Invalid auth code', openapi.Schema(type=openapi.TYPE_OBJECT, properties={'error': openapi.Schema(type=openapi.TYPE_STRING)})),
+        }
+    )
     def post(self, request, *args, **kwargs):
         auth_code = request.data.get('auth_code')
 
         if not auth_code:
             return Response({"error": "Auth code is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Ищем пользователя по auth_code
         user = CustomUser.objects.filter(auth_code=auth_code).first()
 
         if user:
-            # Если код правильный, генерируем JWT токен
             token = user.get_jwt_token()
             return Response({"token": token}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid auth code"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 def auth_page(request):
     return render(request, 'auth.html')
@@ -63,10 +92,14 @@ def auth_page(request):
 class ProfileView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-
+    @swagger_auto_schema(
+        operation_summary="Получение профиля пользователя.",
+        operation_description="Этот метод возвращает информацию о текущем профиле пользователя, включая данные о его рефералах.",
+        responses={200: openapi.Response('Profile data', UserProfileSerializer)},
+    )
     def get(self, request):
         """
-        Возвращает профиль пользователя с его рефералами.
+        Возвращает профиль пользователя с его рефералами, если пользователь авторизован.
         """
         # Получаем текущего аутентифицированного пользователя
         user = request.user
@@ -79,37 +112,46 @@ class ProfileView(APIView):
 
 class ReferralCodeView(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]  # Требуем аутентификацию
+    permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_description="Позволяет пользователю ввести чужой реферальный код.",
+        operation_summary="Применение реферального кода.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'referral_code': openapi.Schema(type=openapi.TYPE_STRING, description='Реферальный код')
+            }
+        ),
+        responses={
+            200: openapi.Response('Referral code applied successfully'),
+            400: openapi.Response('Bad Request', openapi.Schema(type=openapi.TYPE_OBJECT, properties={'detail': openapi.Schema(type=openapi.TYPE_STRING)})),
+            404: openapi.Response('Referral code not found'),
+            403: openapi.Response('Permission Denied'),
+        }
+    )
     def post(self, request):
-        """
-        Позволяет авторизованному пользователю ввести чужой referral_code и заполнить поле referred_by.
-        """
         referral_code = request.data.get('referral_code')
 
-        # Проверяем, что referral_code передан в запросе
         if not referral_code:
             return Response({"detail": "Referral code is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Проверяем, что пользователь не пытается ввести свой собственный реферальный код
         if referral_code == request.user.referral_code:
             raise PermissionDenied({"detail": "You cannot use your own referral code."})
 
-        # Ищем пользователя с данным referral_code
         try:
             referred_user = CustomUser.objects.get(referral_code=referral_code)
         except CustomUser.DoesNotExist:
             raise NotFound({"detail": "User with this referral code not found."})
 
-        # Если пользователь уже имеет поле referred_by, возвращаем ошибку
         if request.user.referred_by:
             return Response({"detail": "You have already been referred by someone."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Обновляем поле referred_by для текущего пользователя
         request.user.referred_by = referred_user
         request.user.save()
 
         return Response({"detail": "Referral code applied successfully."}, status=status.HTTP_200_OK)
+
 
 
 
