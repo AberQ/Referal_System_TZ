@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import CustomUser
 from .serializers import CustomUserSerializer
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 class GetOrCreateUser(APIView):
     def post(self, request, *args, **kwargs):
         phone_number = request.data.get('phone_number')
@@ -45,3 +45,20 @@ class AuthenticateUser(APIView):
             return Response({"token": token}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid auth code"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProtectedView(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        """
+        Возвращает все данные пользователя из JWT-токена
+        """
+        user_data = {
+            "phone_number": request.user.phone_number,
+            "auth_code": request.user.auth_code,
+            "referral_code": request.user.referral_code,
+            "referred_by": request.user.referred_by.phone_number if request.user.referred_by else None,
+        }
+        
+        return Response(user_data)

@@ -28,4 +28,6 @@ urlpatterns = [
     path('autorize/', AuthenticateUser.as_view(), name='authenticate_user'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/profile/', ProtectedView.as_view(), name='profile_detail'),
+    
 ]
