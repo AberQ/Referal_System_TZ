@@ -12,7 +12,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import NotFound
 from .serializers import *
 from django.contrib.auth.decorators import login_required
-
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 class PhoneNumberFormView(APIView):
     def get(self, request, *args, **kwargs):
         return render(request, 'phone_number_form.html')
@@ -115,3 +116,18 @@ def referral_code_view(request):
     Отображает страницу ввода реферального кода.
     """
     return render(request, 'referral_code.html')
+
+
+
+
+class UserProfilePageView(LoginRequiredMixin, TemplateView):
+    """
+    Рендеринг HTML-страницы профиля пользователя.
+    """
+    template_name = "profile.html"
+
+    # Можно передать дополнительные параметры в контекст, если требуется
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Профиль пользователя"  # Пример добавления данных
+        return context

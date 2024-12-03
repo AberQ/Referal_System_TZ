@@ -33,5 +33,6 @@ urlpatterns = [
     path('', PhoneNumberFormView.as_view(), name='phone_number_form'),
     path('auth/', auth_page, name='auth_page'),  
     path('referral/', referral_code_view, name='referral'),
+    path('profile/', UserProfilePageView.as_view(), name='profile_page'),
     
 ]

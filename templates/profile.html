@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>Профиль пользователя</h1>
+    <div id="profileInfo">
+        <p><strong>Номер телефона:</strong> <span id="phoneNumber">Загрузка...</span></p>
+        <p><strong>Ваш реферер:</strong> <span id="referredBy">Загрузка...</span></p>
+        <p><strong>Ваши рефералы:</strong></p>
+        <ul id="referralsList">Загрузка...</ul>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const profileInfo = document.getElementById('profileInfo');
+        const phoneNumber = document.getElementById('phoneNumber');
+        const referredBy = document.getElementById('referredBy');
+        const referralsList = document.getElementById('referralsList');
+
+        try {
+            const token = localStorage.getItem('jwt_token'); // Предполагаем, что токен хранится в localStorage
+            const response = await fetch('/api/profile/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Заполняем данные профиля
+                phoneNumber.textContent = data.phone_number || "Не указано";
+                referredBy.textContent = data.referred_by?.phone_number || "Отсутствует";
+
+                referralsList.innerHTML = ""; // Очищаем список
+                if (data.referrals && data.referrals.length > 0) {
+                    data.referrals.forEach(referral => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = referral.phone_number || "Неизвестный";
+                        referralsList.appendChild(listItem);
+                    });
+                } else {
+                    referralsList.textContent = "У вас нет рефералов.";
+                }
+            } else {
+                profileInfo.textContent = "Ошибка при загрузке профиля.";
+            }
+        } catch (error) {
+            console.error("Ошибка загрузки профиля:", error);
+            profileInfo.textContent = "Произошла ошибка. Попробуйте позже.";
+        }
+    });
+</script>
+
+<style>
+    .profile-container {
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+    }
+
+    .profile-container h1 {
+        margin-bottom: 15px;
+    }
+
+    .profile-container p,
+    .profile-container ul {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .profile-container ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .profile-container ul li {
+        background-color: #f4f4f4;
+        margin-bottom: 5px;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
