@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 import random
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 class CustomUserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, referred_by=None, **extra_fields):
@@ -55,7 +56,14 @@ class CustomUserManager(BaseUserManager):
                 return code
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    phone_number = models.CharField(max_length=15, unique=True)
+    phone_number = models.CharField(
+        max_length=15, 
+        unique=True,
+        validators=[RegexValidator(
+            regex=r'^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$', 
+            message="Введите правильный номер телефона."
+        )]
+    )
     auth_code = models.CharField(max_length=4, blank=True, null=True, unique=True)  # Уникальный код
     referral_code = models.CharField(max_length=6, blank=True, null=True, unique=True)  # Уникальный реферальный код
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_users')  # Кто пригласил
