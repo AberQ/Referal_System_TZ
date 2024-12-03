@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from .models import CustomUser
 from .serializers import CustomUserSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import NotFound
 class GetOrCreateUser(APIView):
     def post(self, request, *args, **kwargs):
         phone_number = request.data.get('phone_number')
@@ -66,3 +67,34 @@ class ProfileView(APIView):
         }
 
         return Response(user_data)
+
+
+class ReferralCodeView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]  # Требуем аутентификацию
+
+    def post(self, request):
+        """
+        Позволяет авторизованному пользователю ввести чужой referral_code и заполнить поле referred_by.
+        """
+        referral_code = request.data.get('referral_code')
+
+        # Проверяем, что referral_code передан в запросе
+        if not referral_code:
+            return Response({"detail": "Referral code is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ищем пользователя с данным referral_code
+        try:
+            referred_user = CustomUser.objects.get(referral_code=referral_code)
+        except CustomUser.DoesNotExist:
+            raise NotFound({"detail": "User with this referral code not found."})
+
+        # Если пользователь уже имеет поле referred_by, возвращаем ошибку
+        if request.user.referred_by:
+            return Response({"detail": "You have already been referred by someone."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Обновляем поле referred_by для текущего пользователя
+        request.user.referred_by = referred_user
+        request.user.save()
+
+        return Response({"detail": "Referral code applied successfully."}, status=status.HTTP_200_OK)

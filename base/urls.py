@@ -29,5 +29,6 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/profile/', ProfileView.as_view(), name='profile_detail'),
+    path('api/input_referral_code/', ReferralCodeView.as_view(), name='input_referral_code'),
     
 ]
