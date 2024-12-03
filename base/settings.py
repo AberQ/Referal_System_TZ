@@ -91,7 +91,7 @@ DATABASES = {
         "NAME": "Referral_DB",
         "USER": "postgres",
         "PASSWORD": "123",
-        "HOST": "localhost",  # Если надо взаимодействовать через Docker то надо ставить 'db', а если через тестовый сервер django, то 'localhost'
+        "HOST": "db",  # Если надо взаимодействовать через Docker то надо ставить 'db', а если через тестовый сервер django, то 'localhost'
         "PORT": "5432",
     }
 }
