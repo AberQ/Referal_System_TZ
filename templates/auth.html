@@ -4,20 +4,46 @@
 
 {% block content %}
 <h2>Авторизация</h2>
-<p>Введите ваш код для получения токена.</p>
+<p id="authMessage"></p> <!-- Здесь будет сообщение о том, что пользователь авторизован -->
 
-<form id="authForm">
-    <label for="auth_code">Auth Code:</label><br>
-    <input type="text" id="auth_code" name="auth_code" required>
-    <br><br>
-    <button type="submit">Получить токен</button>
-</form>
+<div id="authFormWrapper">
+    <p>Введите ваш код для получения токена.</p>
+
+    <form id="authForm">
+        <label for="auth_code">Auth Code:</label><br>
+        <input type="text" id="auth_code" name="auth_code" required>
+        <br><br>
+        <button type="submit">Получить токен</button>
+    </form>
+</div>
 
 <div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; display: none;">
     <p id="message"></p>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+
 <script>
+    // Проверка на наличие токена
+    const token = localStorage.getItem('jwt_token');
+    const authMessage = document.getElementById('authMessage');
+    const authFormWrapper = document.getElementById('authFormWrapper');
+    
+    if (token) {
+        // Если токен найден, декодируем его и извлекаем номер телефона
+        const decodedToken = jwt_decode(token); // Декодируем токен
+        const phoneNumber = decodedToken.phone_number; // Предполагаем, что поле с номером называется phone_number
+
+        authFormWrapper.style.display = 'none'; // Скрыть форму
+        authMessage.textContent = `Вы авторизованы как ${phoneNumber}`;
+        authMessage.style.color = 'green';
+    } else {
+        // Если токен не найден, показываем форму
+        authMessage.textContent = 'Введите код для получения токена.';
+        authMessage.style.color = 'black';
+    }
+
+    // Логика обработки формы авторизации
     document.getElementById('authForm').addEventListener('submit', async function (event) {
         event.preventDefault(); // Предотвращаем перезагрузку страницы
 
@@ -39,8 +65,23 @@
             const data = await response.json();
 
             if (response.ok) {
+                // Сохраняем токен в localStorage
+                localStorage.setItem('jwt_token', data.token);
+
+                // Декодируем токен и извлекаем номер телефона
+                const decodedToken = jwt_decode(data.token);
+                const phoneNumber = decodedToken.phone_number;
+
                 message.textContent = `Ваш токен: ${data.token}`;
                 message.style.color = 'green';
+
+                // Обновляем сообщение о авторизации
+                authFormWrapper.style.display = 'none'; // Скрыть форму
+                authMessage.textContent = `Вы авторизованы как ${phoneNumber}`;
+                authMessage.style.color = 'green';
+
+                // Перенаправляем на защищённую страницу
+                window.location.href = '/protected-page/';
             } else {
                 message.textContent = `Ошибка: ${data.error}`;
                 message.style.color = 'red';
