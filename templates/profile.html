@@ -35,13 +35,13 @@
 
                 // Заполняем данные профиля
                 phoneNumber.textContent = data.phone_number || "Не указано";
-                referredBy.textContent = data.referred_by?.phone_number || "Отсутствует";
+                referredBy.textContent = data.referred_by || "Отсутствует";
 
                 referralsList.innerHTML = ""; // Очищаем список
-                if (data.referrals && data.referrals.length > 0) {
-                    data.referrals.forEach(referral => {
+                if (data.referred_users && data.referred_users.length > 0) {
+                    data.referred_users.forEach(referral => {
                         const listItem = document.createElement('li');
-                        listItem.textContent = referral.phone_number || "Неизвестный";
+                        listItem.textContent = referral || "Неизвестный";
                         referralsList.appendChild(listItem);
                     });
                 } else {

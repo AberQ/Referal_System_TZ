@@ -8,6 +8,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     # Сериализуем поле referred_by (если есть)
+    referred_by = serializers.CharField(source='referred_by.phone_number', default=None)
     referred_users = serializers.SerializerMethodField()
 
     class Meta:
