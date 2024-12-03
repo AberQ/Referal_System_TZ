@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Введите номер телефона</title>
+</head>
+<body>
+    <h1>Введите номер телефона для авторизации</h1>
+    <form id="phoneNumberForm">
+        <label for="phone_number">Номер телефона:</label>
+        <input type="text" id="phone_number" name="phone_number" required>
+        <button type="submit">Отправить</button>
+    </form>
+
+    <div id="responseMessage"></div>
+
+    <script>
+        document.getElementById('phoneNumberForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const phone_number = document.getElementById('phone_number').value;
+
+            fetch('/api/get-or-create-user/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phone_number: phone_number })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.auth_code) {
+                    document.getElementById('responseMessage').textContent = "Ваш код: " + data.auth_code;
+                } else {
+                    document.getElementById('responseMessage').textContent = data.error || "Что-то пошло не так.";
+                }
+            })
+            .catch(error => {
+                document.getElementById('responseMessage').textContent = "Произошла ошибка: " + error;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -11,6 +11,13 @@ from .serializers import CustomUserSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import NotFound
 from .serializers import *
+
+
+class PhoneNumberFormView(APIView):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'phone_number_form.html')
+
+
 class GetOrCreateUser(APIView):
     def post(self, request, *args, **kwargs):
         phone_number = request.data.get('phone_number')

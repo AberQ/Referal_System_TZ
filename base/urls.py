@@ -24,11 +24,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/input_phone/', GetOrCreateUser.as_view(), name='get_or_create_user'),
+    path('api/get-or-create-user/', GetOrCreateUser.as_view(), name='get_or_create_user'),
     path('api/autorize/', AuthenticateUser.as_view(), name='authenticate_user'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/profile/', ProfileView.as_view(), name='profile_detail'),
     path('api/input_referral_code/', ReferralCodeView.as_view(), name='input_referral_code'),
+    path('phone-number/', PhoneNumberFormView.as_view(), name='phone_number_form'),
     
 ]
