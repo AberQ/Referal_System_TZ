@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 import random
-
+from django.core.exceptions import ValidationError
 class CustomUserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, referred_by=None, **extra_fields):
         """
@@ -73,4 +73,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if not self.password:
             self.set_unusable_password()
+        
+        # Проверка, что у пользователя не может быть больше одного пригласившего
+        if self.referred_by and self.referred_by == self:
+            raise ValidationError("A user cannot refer themselves.")
+        
         super().save(*args, **kwargs)
+
+    def clean(self):
+        # Проверка, что у пользователя не может быть более одного пригласившего
+        if self.referred_by and self.referred_by == self:
+            raise ValidationError("A user cannot refer themselves.")
