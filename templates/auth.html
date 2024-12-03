@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Авторизация{% endblock %}
+
+{% block content %}
+<h2>Авторизация</h2>
+<p>Введите ваш код для получения токена.</p>
+
+<form id="authForm">
+    <label for="auth_code">Auth Code:</label><br>
+    <input type="text" id="auth_code" name="auth_code" required>
+    <br><br>
+    <button type="submit">Получить токен</button>
+</form>
+
+<div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; display: none;">
+    <p id="message"></p>
+</div>
+
+<script>
+    document.getElementById('authForm').addEventListener('submit', async function (event) {
+        event.preventDefault(); // Предотвращаем перезагрузку страницы
+
+        const authCode = document.getElementById('auth_code').value;
+        const resultDiv = document.getElementById('result');
+        const message = document.getElementById('message');
+
+        resultDiv.style.display = 'none'; // Скрыть результат перед новым запросом
+
+        try {
+            const response = await fetch('/api/autorize/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ auth_code: authCode }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                message.textContent = `Ваш токен: ${data.token}`;
+                message.style.color = 'green';
+            } else {
+                message.textContent = `Ошибка: ${data.error}`;
+                message.style.color = 'red';
+            }
+
+            resultDiv.style.display = 'block'; // Показать результат
+        } catch (error) {
+            message.textContent = 'Произошла ошибка при отправке запроса.';
+            message.style.color = 'red';
+            resultDiv.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

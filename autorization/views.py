@@ -55,6 +55,8 @@ class AuthenticateUser(APIView):
         else:
             return Response({"error": "Invalid auth code"}, status=status.HTTP_400_BAD_REQUEST)
 
+def auth_page(request):
+    return render(request, 'auth.html')
 
 class ProfileView(APIView):
     authentication_classes = [JWTAuthentication]
