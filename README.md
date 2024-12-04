@@ -5,7 +5,7 @@ https://aberq.pythonanywhere.com
 
 POSTMAN-коллекция
 
-https://aberq8.postman.co/workspace/test~cfa2ada9-9861-434a-9750-ab31536ffb96/collection/38294267-2bc8d1ba-bbe0-49f0-9313-9ab91c28aafb?action=share&creator=38294267
+https://aberq8.postman.co/workspace/AberQ-Workspace~cfa2ada9-9861-434a-9750-ab31536ffb96/collection/38294267-2bc8d1ba-bbe0-49f0-9313-9ab91c28aafb
 
 
 Развертка проекта
