@@ -3,7 +3,7 @@
 
 1. Создать пользователя или получить код подтверждения
 
-Эндпоинт: /api/get-or-create-user/
+Эндпоинт: https://aberq.pythonanywhere.com/api/get-or-create-user/
 
 Метод: POST
 
@@ -29,7 +29,7 @@ phone_number: Номер телефона пользователя.
 
 2.Аутентификация пользователя
 
-Эндпоинт: /api/autorize/
+Эндпоинт: https://aberq.pythonanywhere.com/api/autorize/
 
 Метод: POST
 
@@ -50,7 +50,7 @@ auth_code: Код подтверждения для аутентификации
 Пример: {"error": "Invalid auth code"}
 
 3. Профиль пользователя
-Эндпоинт: /api/profile/
+Эндпоинт: https://aberq.pythonanywhere.com/api/profile/
 
 Метод: GET
 
@@ -79,7 +79,7 @@ auth_code: Код подтверждения для аутентификации
 
 4. Применение реферального кода
 
-Эндпоинт: /api/input_referral_code/
+Эндпоинт: https://aberq.pythonanywhere.com/api/input_referral_code/
 
 Метод: POST
 
