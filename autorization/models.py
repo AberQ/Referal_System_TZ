@@ -18,11 +18,11 @@ class CustomUserManager(BaseUserManager):
         else:
             user.set_unusable_password()
         
-        # Генерация уникальных кодов
+        
         user.auth_code = self.generate_unique_auth_code()
         user.referral_code = self.generate_unique_referral_code()
         
-        # Если указан реферальный код, сохраняем его
+      
         if referred_by:
             user.referred_by = referred_by
         
@@ -42,8 +42,8 @@ class CustomUserManager(BaseUserManager):
         Генерация уникального 4-значного кода.
         """
         while True:
-            code = str(random.randint(1000, 9999))  # Генерация случайного 4-значного кода
-            if not CustomUser.objects.filter(auth_code=code).exists():  # Проверяем, что код уникален
+            code = str(random.randint(1000, 9999))  
+            if not CustomUser.objects.filter(auth_code=code).exists():  
                 return code
 
     def generate_unique_referral_code(self):
@@ -51,8 +51,8 @@ class CustomUserManager(BaseUserManager):
         Генерация уникального 6-значного реферального кода.
         """
         while True:
-            code = str(random.randint(100000, 999999))  # Генерация случайного 6-значного кода
-            if not CustomUser.objects.filter(referral_code=code).exists():  # Проверяем, что код уникален
+            code = str(random.randint(100000, 999999))  
+            if not CustomUser.objects.filter(referral_code=code).exists():  
                 return code
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -64,15 +64,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             message="Введите правильный номер телефона."
         )]
     )
-    auth_code = models.CharField(max_length=4, blank=True, null=True, unique=True)  # Уникальный код
-    referral_code = models.CharField(max_length=6, blank=True, null=True, unique=True)  # Уникальный реферальный код
-    referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_users')  # Кто пригласил
+    auth_code = models.CharField(max_length=4, blank=True, null=True, unique=True)  
+    referral_code = models.CharField(max_length=6, blank=True, null=True, unique=True)  
+    referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_users')  
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = []  # Нет необходимости в пароле для обычных пользователей
+    REQUIRED_FIELDS = []  
 
     objects = CustomUserManager()
 
@@ -83,14 +83,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         if not self.password:
             self.set_unusable_password()
         
-        # Проверка, что у пользователя не может быть больше одного пригласившего
+        
         if self.referred_by and self.referred_by == self:
             raise ValidationError("A user cannot refer themselves.")
         
         super().save(*args, **kwargs)
 
     def clean(self):
-        # Проверка, что у пользователя не может быть более одного пригласившего
+       
         if self.referred_by and self.referred_by == self:
             raise ValidationError("A user cannot refer themselves.")
     def get_jwt_token(self):
@@ -99,7 +99,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         """
         refresh = RefreshToken.for_user(self)
         
-        # Добавление дополнительных данных в payload
+     
         refresh.payload.update({
             'phone_number': self.phone_number,
             'auth_code': self.auth_code,

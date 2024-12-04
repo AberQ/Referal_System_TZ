@@ -44,7 +44,7 @@ class GetOrCreateUser(APIView):
         if not phone_number:
             return Response({"error": "Phone number is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Попытка найти пользователя по номеру телефона
+        
         user = CustomUser.objects.filter(phone_number=phone_number).first()
 
         if user:
@@ -101,10 +101,10 @@ class ProfileView(APIView):
         """
         Возвращает профиль пользователя с его рефералами, если пользователь авторизован.
         """
-        # Получаем текущего аутентифицированного пользователя
+        
         user = request.user
 
-        # Сериализуем профиль пользователя
+      
         serializer = UserProfileSerializer(user)
 
         return Response(serializer.data)
@@ -174,8 +174,8 @@ class UserProfilePageView(LoginRequiredMixin, TemplateView):
     """
     template_name = "profile.html"
 
-    # Можно передать дополнительные параметры в контекст, если требуется
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Профиль пользователя"  # Пример добавления данных
+        context['title'] = "Профиль пользователя"  
         return context
