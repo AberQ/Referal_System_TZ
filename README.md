@@ -126,6 +126,6 @@ referral_code: Реферальный код.
 
 Пример: {"detail": "User with this referral code not found."}
 
-403 Forbidden: Запрещено использовать свой собственный реферальный код.
+403 Forbidden: Запрещено использовать свой собственный реферальный код
 
 Пример: {"detail": "You cannot use your own referral code."}
